@@ -8,7 +8,7 @@ export class Post implements IPost {
   id: uuid;
   title: string;
   content: string;
-  votes: number;
+  votes: uuid[];
   author: User;
   comments: Comment[];
   image: Image;

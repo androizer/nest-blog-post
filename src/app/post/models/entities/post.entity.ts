@@ -29,11 +29,11 @@ export class PostEntity extends Ownership(OwnerTimestampEntity) implements IPost
   content: string;
 
   @Column({
-    type: 'int',
-    nullable: true,
-    default: 0,
+    type: 'uuid',
+    array: true,
+    default: [],
   })
-  votes: number;
+  votes: string[];
 
   @Column({
     type: 'text',

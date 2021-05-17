@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Param,
+  ParseUUIDPipe,
+  Patch,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -14,12 +16,14 @@ import {
   CrudAuth,
   CrudController,
   CrudRequest,
+  CrudRequestInterceptor,
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
 import { Request } from 'express';
 
 import { JwtAuthGuard } from '../../../auth/guards';
+import { CurrentUser } from '../../../shared/decorators';
 import { ImageService } from '../../../shared/services';
 import { uuid } from '../../../shared/types';
 import { User } from '../../../user/models';
@@ -114,5 +118,13 @@ export class PostController implements CrudController<Post> {
       image = await this.imageService.updateAndSave(post.image?.id, file, dto.deleteCoverImg);
     }
     return this.service.updateOne(req, { ...dto, image });
+  }
+
+  @Patch(':id/react')
+  async toggleReaction(
+    @Param('id', ParseUUIDPipe) postId: uuid,
+    @CurrentUser() user: User,
+  ): Promise<boolean> {
+    return this.service.toggleVote(postId, user);
   }
 }
