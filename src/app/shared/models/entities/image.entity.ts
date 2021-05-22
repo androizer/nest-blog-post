@@ -28,7 +28,7 @@ export class ImageEntity extends OwnerTimestampEntity implements IImage {
 
   @AfterLoad()
   convertArrayBufferToBase64() {
-    this.base64 = Buffer.from(this.blob).toString('base64');
+    this.base64 = this.blob ? Buffer.from(this.blob).toString('base64') : '';
     this.blob = undefined;
   }
 }
