@@ -29,6 +29,9 @@ import { UserService } from '../../services';
       avatar: {
         eager: false,
       },
+      bookmarks: {
+        eager: false,
+      },
     },
   },
   routes: {

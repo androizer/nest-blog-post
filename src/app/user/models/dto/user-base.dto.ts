@@ -1,4 +1,14 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, Length } from 'class-validator';
+import {
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
+import { Role } from '../../../shared/enums';
 
 export class UserBase {
   @IsUUID()
@@ -23,4 +33,13 @@ export class UserBase {
   @IsString()
   @Length(8, 16)
   password: string;
+
+  @IsEnum(Role)
+  role: Role;
+
+  @IsDate()
+  createdOn: Date;
+
+  @IsDate()
+  modifiedOn: Date;
 }

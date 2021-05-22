@@ -17,6 +17,12 @@ export class CommentEntity extends Ownership(OwnerTimestampEntity) implements IC
   @ManyToOne(() => UserEntity, (user) => user.comments)
   author: User;
 
+  @Column({ type: 'uuid', nullable: true })
+  authorId: uuid;
+
   @ManyToOne(() => PostEntity, (post) => post.comments)
   post: Post;
+
+  @Column({ type: 'uuid', nullable: true })
+  postId: uuid;
 }

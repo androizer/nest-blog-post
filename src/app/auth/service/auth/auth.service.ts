@@ -3,7 +3,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcrypt';
-import { classToClass, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
 import { CookieOptions } from 'express';
 import ms from 'ms';
 import { Repository } from 'typeorm';
@@ -12,6 +12,7 @@ import AuthConfig from '../../../../config/auth.config';
 import { uuid } from '../../../shared/types';
 import { User } from '../../../user/models';
 import { UserService } from '../../../user/services';
+import { UserToken } from '../../models/dto';
 import { RefreshTokenEntity } from '../../models/entities';
 
 @Injectable()
@@ -30,14 +31,14 @@ export class AuthService {
    * @param pwd password
    * @returns User | null
    */
-  public async validateUser(email: string, pwd: string): Promise<User | null> {
+  public async validateUser(email: string, pwd: string): Promise<UserToken | null> {
     const user = await this.userService.findOne({
       where: { email },
     });
     if (user) {
       const matched = await compare(pwd, user.password);
       if (matched) {
-        return classToClass(user);
+        return plainToClass(UserToken, user, { excludeExtraneousValues: true });
       }
     }
     return null;
@@ -51,8 +52,8 @@ export class AuthService {
   public async login(user: Express.User) {
     const { accessTokenExp } = this.authConfig;
     return {
-      accessToken: this.generateAccessToken(user as User),
-      refreshToken: await this.generateRefreshToken(user as User),
+      accessToken: this.generateAccessToken(user as UserToken),
+      refreshToken: await this.generateRefreshToken(user as UserToken),
       expiresIn: new Date(new Date().getTime() + ms(accessTokenExp)).getTime(),
     };
   }
@@ -120,7 +121,7 @@ export class AuthService {
     };
   }
 
-  protected generateAccessToken(user: User): string {
+  protected generateAccessToken(user: UserToken): string {
     // sign options
     const config: JwtSignOptions = {
       subject: user.id,
@@ -129,7 +130,10 @@ export class AuthService {
     return this.jwtService.sign({ user }, config);
   }
 
-  protected async generateRefreshToken(user: User, expiresIn = this.authConfig.refreshTokenExp) {
+  protected async generateRefreshToken(
+    user: UserToken,
+    expiresIn = this.authConfig.refreshTokenExp,
+  ) {
     // Check if token entity exists on the basis of user_id.
     let tokenEntity = await this.refreshRepo.findOne({
       where: { user: { id: user.id } },
@@ -181,7 +185,7 @@ export class AuthService {
     if (token.isRevoked) {
       throw new UnauthorizedException('Refresh Token Revoked');
     }
-    const user = classToClass(token.user);
+    const user = plainToClass(UserToken, token.user, { excludeExtraneousValues: true });
     return { user, token };
   }
 }

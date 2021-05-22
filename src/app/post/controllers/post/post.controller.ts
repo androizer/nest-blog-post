@@ -4,6 +4,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -16,18 +17,18 @@ import {
   CrudAuth,
   CrudController,
   CrudRequest,
-  CrudRequestInterceptor,
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
+import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 
 import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUser } from '../../../shared/decorators';
-import { ImageService } from '../../../shared/services';
+import { BookmarkService, ImageService } from '../../../shared/services';
 import { uuid } from '../../../shared/types';
 import { User } from '../../../user/models';
-import { CreatePostDTO, Post, PostEntity, UpdatePostDTO } from '../../models';
+import { CreatePostDTO, Post as PostModel, PostEntity, UpdatePostDTO } from '../../models';
 import { PostService } from '../../services/post/post.service';
 
 @Crud({
@@ -65,6 +66,12 @@ import { PostService } from '../../services/post/post.service';
         eager: false,
         alias: 'commentAuthorAvatar',
       },
+      bookmarkedBy: {
+        eager: false,
+      },
+      'bookmarkedBy.user': {
+        eager: false,
+      },
     },
   },
   validation: {
@@ -77,7 +84,7 @@ import { PostService } from '../../services/post/post.service';
 @CrudAuth({
   persist: (req: Request) => {
     const method = req.method.toLocaleLowerCase();
-    const post: Partial<Post> = {
+    const post: Partial<PostModel> = {
       modifiedBy: req.user['id'],
     };
     if (['post'].includes(method)) {
@@ -90,7 +97,7 @@ import { PostService } from '../../services/post/post.service';
 @UseGuards(JwtAuthGuard)
 @ApiTags('posts')
 @Controller('posts')
-export class PostController implements CrudController<Post> {
+export class PostController implements CrudController<PostModel> {
   constructor(public readonly service: PostService, private readonly imageService: ImageService) {}
 
   @Override()
@@ -126,5 +133,10 @@ export class PostController implements CrudController<Post> {
     @CurrentUser() user: User,
   ): Promise<boolean> {
     return this.service.toggleVote(postId, user);
+  }
+
+  @Post(':id/bookmark')
+  async bookmarkPost(@Param('id', ParseUUIDPipe) postId: uuid, @CurrentUser() user: User) {
+    return this.service.toggleBookmark(postId, user);
   }
 }

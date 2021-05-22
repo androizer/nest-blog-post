@@ -7,7 +7,9 @@ export class Comment implements IComment {
   id: uuid;
   content: string;
   author: User;
+  authorId: uuid;
   post: Post;
+  postId: uuid;
   createdBy?: string;
   modifiedBy?: string;
   createdOn?: Date;
