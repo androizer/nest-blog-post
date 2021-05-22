@@ -8,13 +8,23 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 
 import { Comment, CommentEntity } from '../../../comment/models';
 import { Post, PostEntity } from '../../../post/models';
 import { Role } from '../../../shared/enums';
-import { Image, ImageEntity, Ownership, OwnerTimestampEntity } from '../../../shared/models';
+import {
+  BookMark,
+  BookmarkEntity,
+  Image,
+  ImageEntity,
+  Ownership,
+  OwnerTimestampEntity,
+} from '../../../shared/models';
+import { uuid } from '../../../shared/types';
 import { IUser } from '../../types';
+import { User } from '../user.model';
 
 @Entity({ name: 'user' })
 export class UserEntity extends Ownership(OwnerTimestampEntity) implements IUser {
@@ -49,12 +59,24 @@ export class UserEntity extends Ownership(OwnerTimestampEntity) implements IUser
   @OneToMany(() => PostEntity, (post) => post.author)
   posts: Post[];
 
+  @RelationId((user: User) => user.posts)
+  postIds: uuid[];
+
   @OneToMany(() => CommentEntity, (comment) => comment.author)
   comments: Comment[];
+
+  @RelationId((user: User) => user.comments)
+  commentIds: uuid[];
 
   @OneToOne(() => ImageEntity, (image) => image.id)
   @JoinColumn()
   avatar: Image;
+
+  @OneToMany(() => BookmarkEntity, (bookmark) => bookmark.user)
+  bookmarks: BookMark[];
+
+  @RelationId((user: User) => user.bookmarks)
+  bookmarkIds: uuid[];
 
   @BeforeInsert()
   createFullName() {

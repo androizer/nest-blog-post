@@ -1,7 +1,7 @@
 import { IComment } from '../../comment/types';
 import { IPost } from '../../post/types';
 import { Role } from '../../shared/enums';
-import { IImage, IOwnership, IOwnerTimestamp, uuid } from '../../shared/types';
+import { IBookmark, IImage, IOwnership, IOwnerTimestamp, uuid } from '../../shared/types';
 
 export interface IUser extends IOwnership, IOwnerTimestamp {
   id: uuid;
@@ -12,6 +12,10 @@ export interface IUser extends IOwnership, IOwnerTimestamp {
   password?: string;
   role: Role[];
   posts: IPost[];
+  postIds: uuid[];
   comments: IComment[];
+  commentIds: uuid[];
   avatar: IImage;
+  bookmarks: IBookmark[];
+  bookmarkIds: uuid[];
 }

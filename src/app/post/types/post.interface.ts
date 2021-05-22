@@ -1,5 +1,5 @@
 import { IComment } from '../../comment/types';
-import { IImage, IOwnership, IOwnerTimestamp, uuid } from '../../shared/types';
+import { IBookmark, IImage, IOwnership, IOwnerTimestamp, uuid } from '../../shared/types';
 import { IUser } from '../../user/types';
 
 export interface IPost extends IOwnership, IOwnerTimestamp {
@@ -8,7 +8,11 @@ export interface IPost extends IOwnership, IOwnerTimestamp {
   content: string;
   votes: uuid[];
   author: IUser;
+  authorId: uuid;
   comments: IComment[];
+  commentIds: uuid[];
   image?: IImage;
   tags: string[];
+  bookmarkedBy: IBookmark[];
+  bookmarkedIds: uuid[];
 }
