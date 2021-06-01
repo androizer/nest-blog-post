@@ -25,7 +25,7 @@ export class PostService extends TypeOrmCrudService<Post> {
    * @param user User
    * @returns `true` for adding vote, `false` for removing vote.
    */
-  async toggleVote(postId: uuid, user: User): Promise<boolean> {
+  async toggleVote(postId: uuid, user: User): Promise<Pick<Post, 'votes'>> {
     const post = await this.postRepo.findOne(postId, { select: ['votes'] });
     const index = post.votes.findIndex((userId) => userId === user.id);
     const found = index > -1;
@@ -34,8 +34,8 @@ export class PostService extends TypeOrmCrudService<Post> {
     } else {
       post.votes.push(user.id);
     }
-    this.postRepo.update(postId, post);
-    return !found;
+    await this.postRepo.update(postId, { votes: [...post.votes] });
+    return this.postRepo.findOne(postId, { select: ['votes'] });
   }
 
   /**

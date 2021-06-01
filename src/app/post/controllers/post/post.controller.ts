@@ -20,12 +20,11 @@ import {
   Override,
   ParsedRequest,
 } from '@nestjsx/crud';
-import { plainToClass } from 'class-transformer';
 import { Request } from 'express';
 
 import { JwtAuthGuard } from '../../../auth/guards';
 import { CurrentUser } from '../../../shared/decorators';
-import { BookmarkService, ImageService } from '../../../shared/services';
+import { ImageService } from '../../../shared/services';
 import { uuid } from '../../../shared/types';
 import { User } from '../../../user/models';
 import { CreatePostDTO, Post as PostModel, PostEntity, UpdatePostDTO } from '../../models';
@@ -131,7 +130,7 @@ export class PostController implements CrudController<PostModel> {
   async toggleReaction(
     @Param('id', ParseUUIDPipe) postId: uuid,
     @CurrentUser() user: User,
-  ): Promise<boolean> {
+  ): Promise<Pick<PostModel, 'votes'>> {
     return this.service.toggleVote(postId, user);
   }
 
