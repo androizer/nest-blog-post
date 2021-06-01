@@ -76,7 +76,13 @@ export class CommentController implements CrudController<Comment> {
     comment.post = plainToClass(Post, { id: dto.postId });
     comment.createdBy = user.id;
     const newComment = await this.service.createOne(req, comment);
-    this.emitter2.emit('comment.created', new CommentCreatedEvent({ id: newComment.id }));
+    this.emitter2.emit(
+      'comment.created',
+      new CommentCreatedEvent({
+        id: newComment.id,
+        postId: newComment.postId,
+      }),
+    );
     return newComment;
   }
 }
