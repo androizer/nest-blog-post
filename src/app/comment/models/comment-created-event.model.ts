@@ -1,7 +1,9 @@
 import { BaseEvent } from '../../shared/models';
+import { uuid } from '../../shared/types';
 
 interface ICommentCreated {
-  id: string;
+  id: uuid;
+  postId: uuid;
 }
 
 export class CommentCreatedEvent extends BaseEvent<ICommentCreated> {
